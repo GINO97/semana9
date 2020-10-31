@@ -1,0 +1,65 @@
+import sys
+
+YEAR_COL = 1
+RESULT_COL = 4
+FIGHTER_COL = 5
+OPPONENT_COL = 6
+DIVISION_COL = 7
+
+graph = {}
+fighters_id = {}
+ids = 0
+divisions_id = {}
+div_id = 0
+
+first_line=True
+for line in sys.stdin:
+  l = line.strip().split(",")
+  if first_line or l[RESULT_COL]!="W":
+    first_line = False
+    continue
+
+  # Get data from csv
+  year = l[YEAR_COL].strip().replace(""", "") # September 14, 2019
+  winner = l[FIGHTER_COL]
+  looser = l[OPPONENT_COL]
+  division = l[DIVISION_COL]
+
+  # Put ids
+  if winner not in fighters_id:
+    fighters_id[winner] = ids
+    ids+=1
+  winnerId = fighters_id[winner]
+
+  if looser not in fighters_id:
+    fighters_id[looser] = ids
+    ids+=1
+  looserId = fighters_id[looser]
+
+  # Add to graph
+  if winnerId not in graph:
+    graph[winnerId] = [winner, []]
+
+  if f"{division} {year}" not in divisions_id:
+    divisions_id[f"{division} {year}"] =  div_id
+    div_id +=1
+
+  graph[winnerId][1].append([looserId, divisions_id[f"{division} {year}"]])
+
+  if looserId not in graph:
+      graph[looserId] = [looser, []] 
+
+
+# PRINT FIGHTERS ID
+for k in fighters_id:
+  print(f"{fighters_id[k]}, {k}")
+
+# PRINT DIVISIONS ID
+# for k in divisions_id:
+#   print(f"{divisions_id[k]}, {k}")
+
+# PRINT GRAPH IN JsonLongDoubleFloatDoubleVertexInputFormat
+for vertex_id in graph:
+  vertexVal = graph[vertex_id][0]
+  edges = graph[vertex_id][1]
+  print(f"[{vertex_id}, {fighters_id[vertexVal]}, {edges}]")
